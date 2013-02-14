@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -47,19 +48,29 @@ namespace Twitter
 
         private async void AuthenticationButton_Click_2(object sender, RoutedEventArgs e)
         {
-            if (await TwitterWinRT.UpdateStatus("test"))
+            if (this.TwitterWinRT.AccessGranted)
             {
-                // SUCCESS!
+                if (await TwitterWinRT.UpdateStatus("test"))
+                {
+                    // SUCCESS!
+                }
             }
+            else
+                new MessageDialog("You need to obtain access before!").ShowAsync();
         }
 
         private async void AuthenticationButton_Click_3(object sender, RoutedEventArgs e)
         {
-            var list = await TwitterWinRT.GetTimeline();
-            if (list.Any())
+            if (this.TwitterWinRT.AccessGranted)
             {
-                // SUCCESS!
+                var list = await TwitterWinRT.GetTimeline();
+                if (list.Any())
+                {
+                    // SUCCESS!
+                }
             }
+            else
+                new MessageDialog("You need to obtain access before!").ShowAsync();
         }
     }
 }
