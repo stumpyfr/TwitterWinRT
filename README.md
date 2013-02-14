@@ -12,6 +12,7 @@ Usage
 3. If not, call GainAccessToTwitter()
 
 4. You can call:
+
   a. GetUserTimeline()
 
   b. GetTimeline()
