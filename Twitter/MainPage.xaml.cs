@@ -28,7 +28,7 @@ namespace Twitter
         {
             this.InitializeComponent();
 
-            this.TwitterWinRT = new TwitterWinRT.TwitterWinRT("YouConsumerKey", "YouConsumerSecret", "http://google.fr");
+            this.TwitterWinRT = new TwitterWinRT.TwitterWinRT("LURmUd4ZjdOrUl6zS8H8oA", "FWh9V4fqyKid7PtH0mNaGQjeIgsWtPOyHimezyAnM", "http://google.fr");
         }
 
         /// <summary>
@@ -65,6 +65,20 @@ namespace Twitter
             {
                 var list = await TwitterWinRT.GetTimeline();
                 if (list.Any())
+                {
+                    // SUCCESS!
+                }
+            }
+            else
+                new MessageDialog("You need to obtain access before!").ShowAsync();
+        }
+
+        private async void AuthenticationButton_Click_4(object sender, RoutedEventArgs e)
+        {
+            if (this.TwitterWinRT.AccessGranted)
+            {
+                var profil = await TwitterWinRT.GetProfil();
+                if (profil != null)
                 {
                     // SUCCESS!
                 }

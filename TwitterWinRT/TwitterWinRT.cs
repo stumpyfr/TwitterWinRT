@@ -22,6 +22,7 @@ namespace TwitterWinRT
         private const string updateStatusUrl = "https://api.twitter.com/1/statuses/update.json";
         private const string timelineUrl = "https://api.twitter.com/1/statuses/user_timeline.json";
         private const string homelineUrl = "https://api.twitter.com/1/statuses/home_timeline.json";
+        private const string userUrl = "https://api.twitter.com/1/users/show.json";
 
         private const string signatureMethod = "HMAC-SHA1";
         private const string oauthVersion = "1.0";
@@ -154,15 +155,9 @@ namespace TwitterWinRT
         /// <returns>List of tweet</returns>
         public async Task<List<Status>> GetUserTimeline()
         {
-            var header = new TwitterRtDictionary();
-            header.Add("oauth_consumer_key", consumerKey);
-            header.Add("oauth_nonce", GenerateNonce());
-            header.Add("oauth_signature_method", signatureMethod);
-            header.Add("oauth_timestamp", GenerateSinceEpoch());
-            header.Add("oauth_token", OauthToken);
-            header.Add("oauth_version", oauthVersion);
+            var header = PrepareAuth();
 
-            var response = await GetData(timelineUrl, header);
+            var response = await GetData<List<Status>>(timelineUrl, header);
 
             return response;
         }
@@ -173,6 +168,29 @@ namespace TwitterWinRT
         /// <returns>List of tweet</returns>
         public async Task<List<Status>> GetTimeline()
         {
+            var header = PrepareAuth();
+
+            var response = await GetData<List<Status>>(homelineUrl, header);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Get the profil of the current user
+        /// </summary>
+        /// <returns>return the user informations</returns>
+        public async Task<Profil> GetProfil()
+        {
+            var header = PrepareAuth();
+
+            var url = userUrl + "?user_id=" + this.UserID;
+            var response = await GetData<Profil>(url, header);
+
+            return response;
+        }
+
+        private TwitterRtDictionary PrepareAuth()
+        {
             var header = new TwitterRtDictionary();
             header.Add("oauth_consumer_key", consumerKey);
             header.Add("oauth_nonce", GenerateNonce());
@@ -180,8 +198,35 @@ namespace TwitterWinRT
             header.Add("oauth_timestamp", GenerateSinceEpoch());
             header.Add("oauth_token", OauthToken);
             header.Add("oauth_version", oauthVersion);
+            return header;
+        }
 
-            var response = await GetData(homelineUrl, header);
+        /// <summary>
+        /// Get the profil of the user
+        /// </summary>
+        /// <param name="userId">user id</param>
+        /// <returns>return the user informations</returns>
+        public async Task<Profil> GetProfil(int userId)
+        {
+            var header = PrepareAuth();
+
+            var url = userUrl + "?user_id=" + userId;
+            var response = await GetData<Profil>(url, header);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Get the profil of the user
+        /// </summary>
+        /// <param name="userId">user name</param>
+        /// <returns>return the user informations</returns>
+        public async Task<Profil> GetProfil(string username)
+        {
+            var header = PrepareAuth();
+
+            var url = userUrl + "?screen_name=" + username;
+            var response = await GetData<Profil>(url, header);
 
             return response;
         }
@@ -195,13 +240,7 @@ namespace TwitterWinRT
         {
             IsTweeting = true;
             Status = "Tweeting";
-            var header = new TwitterRtDictionary();
-            header.Add("oauth_consumer_key", consumerKey);
-            header.Add("oauth_nonce", GenerateNonce());
-            header.Add("oauth_signature_method", signatureMethod);
-            header.Add("oauth_timestamp", GenerateSinceEpoch());
-            header.Add("oauth_token", OauthToken);
-            header.Add("oauth_version", oauthVersion);
+            var header = PrepareAuth();
             var request = new TwitterRtDictionary();
             request.Add("status", Uri.EscapeDataString(status));
             var response = await PostData(updateStatusUrl, header, request);
@@ -308,7 +347,8 @@ namespace TwitterWinRT
             }
         }
 
-        private async Task<List<Status>> GetData(String url, TwitterRtDictionary headerDictionary, TwitterRtDictionary requestDictionary = null)
+        private async Task<T> GetData<T>(String url, TwitterRtDictionary headerDictionary, TwitterRtDictionary requestDictionary = null)
+            where T : new()
         {
             // See https://dev.twitter.com/docs/auth/creating-signature
             var combinedDictionaries = new TwitterRtDictionary(headerDictionary);
@@ -321,10 +361,11 @@ namespace TwitterWinRT
             var signatureBuffer = CryptographicEngine.Sign(key, dataToBeSigned);
             var signature = CryptographicBuffer.EncodeToBase64String(signatureBuffer);
             var headers = "OAuth " + headerDictionary.ToStringQ() + ", oauth_signature=\"" + Uri.EscapeDataString(signature) + "\"";
-            return await GetData(url, headers, (requestDictionary == null) ? String.Empty : requestDictionary.ToString());
+            return await GetData<T>(url, headers, (requestDictionary == null) ? String.Empty : requestDictionary.ToString());
         }
 
-        private async Task<List<Status>> GetData(String url, String headers, String requestData = null)
+        private async Task<T> GetData<T>(String url, String headers, String requestData = null)
+            where T : new()
         {
             try
             {
@@ -344,24 +385,24 @@ namespace TwitterWinRT
 
                 if (Response.StatusCode != HttpStatusCode.OK)
                 {
-                    return new List<Status>();
+                    return new T();
                 }
 
                 using (StreamReader ResponseDataStream = new StreamReader(Response.GetResponseStream()))
                 {
                     var response = await ResponseDataStream.ReadToEndAsync();
 
-                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<Status>));
+                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));
                     using (MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(response)))
                     {
                         var tmp = ser.ReadObject(stream);
-                        return tmp as List<Status>;
+                        return (T)tmp;
                     }
                 }
             }
             catch (Exception e)
             {
-                return new List<Status>();
+                return new T();
             }
         }
 
@@ -542,5 +583,43 @@ namespace TwitterWinRT
         public string profile_image_url { get; set; }
         public string url { get; set; }
         public string description { get; set; }
+    }
+
+    public class Profil
+    {
+        public string profile_sidebar_fill_color { get; set; }
+        public string name { get; set; }
+        public string profile_sidebar_border_color { get; set; }
+        public string profile_background_tile { get; set; }
+        public string created_at { get; set; }
+        public string profile_image_url { get; set; }
+        public string location { get; set; }
+        public string follow_request_sent { get; set; }
+        public string id_str { get; set; }
+        public string profile_link_color { get; set; }
+        public string is_translator { get; set; }
+        public string contributors_enabled { get; set; }
+        public string url { get; set; }
+        public string favourites_count { get; set; }
+        public string utc_offset { get; set; }
+        public string id { get; set; }
+        public string profile_use_background_image { get; set; }
+        public string listed_count { get; set; }
+        public string profile_text_color { get; set; }
+        public string Protected { get; set; }
+        public string followers_count { get; set; }
+        public string lang { get; set; }
+        public string notifications { get; set; }
+        public string geo_enabled { get; set; }
+        public string profile_background_color { get; set; }
+        public string verified { get; set; }
+        public string description { get; set; }
+        public string time_zone { get; set; }
+        public string profile_background_image_url { get; set; }
+        public string friends_count { get; set; }
+        public string statuses_count { get; set; }
+        public string following { get; set; }
+        public string screen_name { get; set; }
+        public string show_all_inline_media { get; set; }
     }
 }
