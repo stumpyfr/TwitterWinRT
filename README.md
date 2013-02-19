@@ -18,3 +18,5 @@ Usage
   b. GetTimeline()
 
   c. UpdateStatus(String status)
+  
+  d. GetProfil(void || int userId || string userName)
