@@ -1,5 +1,5 @@
-TwitterWinRT
-============
+# TwitterWinRT
+
 
 Twitter API in Async/Await for WinRT
 
@@ -9,14 +9,14 @@ Twitter API in Async/Await for WinRT
 
 2. Check the AccessGranted property to detect if the user is already logued
 
-3. If not, call GainAccessToTwitter()
+3. If not, call `GainAccessToTwitter()`
 
 4. You can call:
 
-  a. GetUserTimeline()
-
-  b. GetTimeline()
-
-  c. UpdateStatus(String status)
-  
-  d. GetProfil(void || int userId || string userName)
+	  a. `GetUserTimeline()`
+	
+	  b. `GetTimeline()`
+	
+	  c. `UpdateStatus(String status)`
+	  
+	  d. `GetProfil(void || int userId || string userName)`
