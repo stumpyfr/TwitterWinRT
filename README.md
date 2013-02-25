@@ -20,3 +20,5 @@ Twitter API in Async/Await for WinRT
 	  c. `UpdateStatus(String status)`
 	  
 	  d. `GetProfil(void || int userId || string userName)`
+	  
+	  e. ` Logout()`

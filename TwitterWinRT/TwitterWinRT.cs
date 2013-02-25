@@ -93,6 +93,11 @@ namespace TwitterWinRT
             }
         }
 
+        public void Logout()
+        {
+            this.ResetSettings();
+        }
+
         /// <summary>
         /// Obtain the oAuth token for the user
         /// </summary>
