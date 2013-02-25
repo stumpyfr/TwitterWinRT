@@ -28,7 +28,7 @@ namespace Twitter
         {
             this.InitializeComponent();
 
-            this.TwitterWinRT = new TwitterWinRT.TwitterWinRT("LURmUd4ZjdOrUl6zS8H8oA", "FWh9V4fqyKid7PtH0mNaGQjeIgsWtPOyHimezyAnM", "http://google.fr");
+            this.TwitterWinRT = new TwitterWinRT.TwitterWinRT("", "", "http://google.fr");
         }
 
         /// <summary>
