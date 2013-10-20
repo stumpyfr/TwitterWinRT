@@ -22,3 +22,7 @@ Twitter API in Async/Await for WinRT
 	  d. `GetProfil(void || int userId || string userName)`
 	  
 	  e. ` Logout()`
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/stumpyfr/twitterwinrt/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
